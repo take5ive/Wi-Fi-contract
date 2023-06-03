@@ -1,0 +1,12 @@
+node_modules
+scripts/deploy-ethseoul/mint-TESTTOKEN.ts
+.env
+coverage
+coverage.json
+typechain
+typechain-types
+
+# Hardhat files
+cache
+artifacts
+
