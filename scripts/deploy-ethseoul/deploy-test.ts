@@ -7,35 +7,41 @@ import aruroa_test_addresses from "../../config/configs_aurora_test.json";
 // import mumbai_addresses from "../../config/configs_mumbai.json";
 // import abi_TEST from "../abi/TEST.json";
 export async function deployMockPair() {
+  console.log(await ethers.provider.getGasPrice());
+
   //* Deploy Mock Token: WBTC, TEST, USDT
   const [deployer] = await ethers.getSigners();
   const erc20: MockERC20__factory = await ethers.getContractFactory(
     "MockERC20"
   );
-  // const USDT = await erc20
-  //   .deploy(ethers.utils.parseUnits("4500", 6), "ETHSEOUL-USDT", "USDT", 6)
-  //   .then((tx) => tx.deployed());
-  const USDT = await ethers.getContractAt(
-    "MockERC20",
-    aruroa_test_addresses.aurora_test.USDT_6
-  );
+  const USDT = await erc20
+    .deploy(ethers.utils.parseUnits("4500", 6), "ETHSEOUL-USDT", "USDT", 6)
+    .then((tx) => tx.deployed());
+  // const USDT = await ethers.getContractAt(
+  //   "MockERC20",
+  //   aruroa_test_addresses.aurora_test.USDT_6
+  // );
 
   console.log("USDT deployed");
   saveConfig(`${network.name}__USDT_6`, USDT.address);
-  // const WBTC = await erc20
-  //   .deploy(ethers.utils.parseEther("0.009"), "ETHSEOUL-WBTC", "WBTC", 18)
-  //   .then((tx) => tx.deployed());
-  const WBTC = await ethers.getContractAt(
-    "MockERC20",
-    aruroa_test_addresses.aurora_test.WBTC_18
-  );
-  console.log("WBTC deployed");
-  saveConfig(`${network.name}__WBTC_18`, WBTC.address);
-  const TEST = await ethers.getContractAt(
-    "MockERC20",
-    aruroa_test_addresses.aurora_test.TEST_18
-  );
-  saveConfig(`${network.name}__TEST_18`, TEST.address);
+
+  const PEPE = await erc20
+    .deploy(ethers.utils.parseUnits("100000", 6), "ETHSEOUL-PEPE", "PEPE", 6)
+    .then((tx) => tx.deployed());
+  // const PEPE = await ethers.getContractAt(
+  //   "MockERC20",
+  //   aruroa_test_addresses.aurora_test.PEPE_18
+  // );
+  console.log("PEPE deployed");
+  saveConfig(`${network.name}__PEPE_18`, PEPE.address);
+  const USDC = await erc20
+    .deploy(ethers.utils.parseUnits("4500", 6), "ETHSEOUL-USDC", "USDC", 6)
+    .then((tx) => tx.deployed());
+  // const USDC = await ethers.getContractAt(
+  //   "MockERC20",
+  //   aruroa_test_addresses.aurora_test.USDC_18
+  // );
+  saveConfig(`${network.name}__USDC_6`, USDC.address);
 
   //이미 배포완료
   // const USDT = await ethers.getContractAt(
@@ -44,13 +50,13 @@ export async function deployMockPair() {
   // );
   // const WBTC = await ethers.getContractAt(
   //   "MockERC20",
-  //   mumbai_addresses.mumbai.WBTC_18
+  //   mumbai_addresses.mumbai.PEPE_18
   // );
   console.log("1: Deployed Mock Token");
   // //* Mint TEST Token
   // const TEST: TestERC20 = await ethers.getContractAt(
   //   "TestERC20",
-  //   mumbai_addresses.mumbai.TEST_18
+  //   mumbai_addresses.mumbai.USDC_18
   // );
   // TEST.mint(deployer.address, ethers.utils.parseEther("4500")).then((tx) =>
   //   tx.wait()
@@ -58,14 +64,14 @@ export async function deployMockPair() {
 
   console.log("2: Minted TEST Token");
   //* Deploy WETH & Deposit
-  // const WETH_factory = await ethers.getContractFactory("WETH9");
-  // const WETH = await WETH_factory.deploy().then((tx) => tx.deployed());
-  const WETH = await ethers.getContractAt(
-    "WETH9",
-    aruroa_test_addresses.aurora_test.WETH_18
-  );
+  const WETH_factory = await ethers.getContractFactory("WETH9");
+  const WETH = await WETH_factory.deploy().then((tx) => tx.deployed());
+  // const WETH = await ethers.getContractAt(
+  //   "WETH9",
+  //   aruroa_test_addresses.aurora_test.WETH_18
+  // );
   console.log("WETH deployed");
-  // await WETH.deposit({ value: ethers.utils.parseEther("1") });
+  await WETH.deposit({ value: ethers.utils.parseEther("1") });
   saveConfig(`${network.name}__WETH_18`, WETH.address);
 
   // const WETH = await ethers.getContractAt(
@@ -121,7 +127,7 @@ export async function deployMockPair() {
     uniswapV2Router02.address,
     ethers.constants.MaxUint256
   ).then((tx) => tx.wait());
-  await TEST.approve(
+  await USDC.approve(
     uniswapV2Router02.address,
     ethers.constants.MaxUint256
   ).then((tx: any) => tx.wait());
@@ -129,24 +135,24 @@ export async function deployMockPair() {
     uniswapV2Router02.address,
     ethers.constants.MaxUint256
   ).then((tx) => tx.wait());
-  await WBTC.approve(
+  await PEPE.approve(
     uniswapV2Router02.address,
     ethers.constants.MaxUint256
   ).then((tx) => tx.wait());
   console.log("5: Approved");
   //* Add Liquidity
   await uniswapV2Factory
-    .createPair(WETH.address, TEST.address)
+    .createPair(WETH.address, USDC.address)
     .then((tx) => tx.wait());
   console.log("6-1: Create Pair WETH-TEST");
   saveConfig(
     `${network.name}__TEST_WETH_Pair`,
-    await uniswapV2Factory.getPair(WETH.address, TEST.address)
+    await uniswapV2Factory.getPair(WETH.address, USDC.address)
   );
   await uniswapV2Router02
     .addLiquidity(
       WETH.address,
-      TEST.address,
+      USDC.address,
       ethers.utils.parseEther("0.3"),
       ethers.utils.parseEther("1500"),
       1,
@@ -180,20 +186,20 @@ export async function deployMockPair() {
 
   console.log("6-2: Add Liquidity WETH-TEST");
   await uniswapV2Factory
-    .createPair(USDT.address, TEST.address)
+    .createPair(USDT.address, USDC.address)
     .then((tx) => tx.wait());
   saveConfig(
     `${network.name}__TEST_USDT_Pair`,
-    await uniswapV2Factory.getPair(TEST.address, USDT.address)
+    await uniswapV2Factory.getPair(USDC.address, USDT.address)
   );
 
   console.log("6-1: Create Pair USDT-TEST");
   await uniswapV2Router02
     .addLiquidity(
       USDT.address,
-      TEST.address,
+      USDC.address,
       ethers.utils.parseUnits("1500", 6),
-      ethers.utils.parseEther("1500"),
+      ethers.utils.parseUnits("1500", 6),
       1,
       1,
       deployer.address,
@@ -203,19 +209,19 @@ export async function deployMockPair() {
 
   console.log("6-2: Add Liquidity USDT-TEST");
   await uniswapV2Factory
-    .createPair(WETH.address, WBTC.address)
+    .createPair(WETH.address, PEPE.address)
     .then((tx) => tx.wait());
   saveConfig(
-    `${network.name}__TEST_WBTC_Pair`,
-    await uniswapV2Factory.getPair(TEST.address, WBTC.address)
+    `${network.name}__TEST_PEPE_Pair`,
+    await uniswapV2Factory.getPair(USDC.address, PEPE.address)
   );
-  console.log("6-1: Create Pair WETH-WBTC");
+  console.log("6-1: Create Pair WETH-PEPE");
   await uniswapV2Router02
     .addLiquidity(
       WETH.address,
-      WBTC.address,
+      PEPE.address,
       ethers.utils.parseEther("0.3"),
-      ethers.utils.parseEther("0.003"),
+      ethers.utils.parseUnits("3333", 6),
       1,
       1,
       deployer.address,
@@ -223,21 +229,21 @@ export async function deployMockPair() {
     )
     .then((tx) => tx.wait());
 
-  console.log("6-2: Add Liquidity WETH-WBTC");
+  console.log("6-2: Add Liquidity WETH-PEPE");
   await uniswapV2Factory
-    .createPair(TEST.address, WBTC.address)
+    .createPair(USDC.address, PEPE.address)
     .then((tx) => tx.wait());
   saveConfig(
-    `${network.name}__USDT_WBTC_Pair`,
-    await uniswapV2Factory.getPair(USDT.address, WBTC.address)
+    `${network.name}__USDT_PEPE_Pair`,
+    await uniswapV2Factory.getPair(USDT.address, PEPE.address)
   );
-  console.log("6-1: Create Pair TEST-WBTC");
+  console.log("6-1: Create Pair TEST-PEPE");
   await uniswapV2Router02
     .addLiquidity(
-      TEST.address,
-      WBTC.address,
-      ethers.utils.parseEther("1500"),
-      ethers.utils.parseEther("0.003"),
+      USDC.address,
+      PEPE.address,
+      ethers.utils.parseUnits("1500", 6),
+      ethers.utils.parseUnits("3333", 6),
       1,
       1,
       deployer.address,
@@ -245,21 +251,21 @@ export async function deployMockPair() {
     )
     .then((tx) => tx.wait());
 
-  console.log("6-2: Add Liquidity TEST-WBTC");
+  console.log("6-2: Add Liquidity TEST-PEPE");
   await uniswapV2Factory
-    .createPair(USDT.address, WBTC.address)
+    .createPair(USDT.address, PEPE.address)
     .then((tx) => tx.wait());
   saveConfig(
-    `${network.name}__WETH_WBTC_Pair`,
-    await uniswapV2Factory.getPair(WETH.address, WBTC.address)
+    `${network.name}__WETH_PEPE_Pair`,
+    await uniswapV2Factory.getPair(WETH.address, PEPE.address)
   );
-  console.log("6-1: Create Pair USDT-WBTC");
+  console.log("6-1: Create Pair USDT-PEPE");
   await uniswapV2Router02
     .addLiquidity(
       USDT.address,
-      WBTC.address,
+      PEPE.address,
       ethers.utils.parseUnits("1500", 6),
-      ethers.utils.parseEther("0.003"),
+      ethers.utils.parseUnits("3333", 6),
       1,
       1,
       deployer.address,
@@ -267,7 +273,7 @@ export async function deployMockPair() {
     )
     .then((tx) => tx.wait());
 
-  console.log("6-2: Add Liquidity USDT-WBTC");
+  console.log("6-2: Add Liquidity USDT-PEPE");
 
   console.log("6: Successfully deployed Uniswap Pairs");
 }

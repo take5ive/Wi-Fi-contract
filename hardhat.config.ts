@@ -3,6 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import dotenv from "dotenv";
 dotenv.config();
 const SH_PK: string = process.env.SH!;
+const SH_PK2: string = process.env.SH2!;
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
@@ -64,8 +65,8 @@ const config: HardhatUserConfig = {
     },
     goerli: {
       chainId: 5,
-      url: "https://eth-goerli.public.blastapi.io",
-      accounts: [SH_PK],
+      url: "https://goerli.blockpi.network/v1/rpc/public",
+      accounts: [SH_PK2],
     },
     matic: {
       chainId: 137,
@@ -97,8 +98,7 @@ const config: HardhatUserConfig = {
     aurora_test: {
       chainId: 1313161555,
       url: "https://testnet.aurora.dev",
-      accounts: [SH_PK],
-      gasPrice: 300000000,
+      accounts: [SH_PK2],
     },
   },
 };

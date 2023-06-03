@@ -13,6 +13,7 @@ contract UniswapV2Funnel {
     address public owner;
     address public immutable WETH;
     mapping(address => uint32) public feeOf;
+
     modifier ensure(uint deadline) {
         require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
         _;
@@ -56,7 +57,7 @@ contract UniswapV2Funnel {
         owner = owner_;
     }
 
-    function setFeeOf(address factory, uint32 feeBps) public {
+    function setFeeOf(address factory, uint32 feeBps) public onlyOwner {
         feeOf[factory] = feeBps;
     }
 
@@ -155,6 +156,9 @@ contract UniswapV2Funnel {
         address farmToken = IUniswapV2Pair(pair).token0() == baseToken
             ? IUniswapV2Pair(pair).token1()
             : IUniswapV2Pair(pair).token0();
+        baseToken = IUniswapV2Pair(pair).token0() == baseToken
+            ? IUniswapV2Pair(pair).token0()
+            : IUniswapV2Pair(pair).token1();
 
         if (baseToken == WETH) {
             IWETH9(WETH).deposit{value: baseAmount}();

@@ -3,8 +3,6 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { deployFixture } from "../scripts/deploy";
 import { UniswapV2Factory, UniswapV2Funnel } from "../typechain-types";
-import { type } from "os";
-import exp from "constants";
 
 let addressBook: Awaited<ReturnType<typeof deployFixture>>;
 let funnel: UniswapV2Funnel;

@@ -4,6 +4,7 @@ import goerli_addresses from "../../config/configs_goerli.json";
 import chiado_addresses from "../../config/configs_chiado.json";
 import mumbai_addresses from "../../config/configs_mumbai.json";
 import { saveConfig } from "./use-config";
+import { setFeeOf } from "./set-feeof";
 export async function deployFunnel(WETHaddress: string) {
   //* Deploy UniswapFunnel
   const UniswapV2Funnel_f = await ethers.getContractFactory("UniswapV2Funnel");
@@ -12,6 +13,7 @@ export async function deployFunnel(WETHaddress: string) {
   );
   saveConfig(`${network.name}__UniswapV2Funnel`, UniswapV2Funnel.address);
   console.log("7: Successfully deployed UniswapFunnel");
-}
 
-deployFunnel(chiado_addresses.chiado.WETH_18);
+  console.log("8: Set Fee of UniswapFunnel");
+}
+deployFunnel(goerli_addresses.goerli.WETH_18);
