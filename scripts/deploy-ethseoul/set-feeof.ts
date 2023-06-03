@@ -1,6 +1,7 @@
 import { ethers } from "hardhat";
 import { UniswapV2Funnel } from "../../typechain-types";
 import address_goerli from "../../config/configs_goerli.json";
+import address_chiado from "../../config/configs_chiado.json";
 export async function setFeeOf(
   funnelAddress: string,
   factoryAddress: string,
@@ -17,7 +18,7 @@ export async function setFeeOf(
 }
 
 setFeeOf(
-  address_goerli.goerli.UniswapV2Funnel,
-  address_goerli.goerli.uniswapV2Factory,
+  address_chiado.chiado.UniswapV2Funnel,
+  address_chiado.chiado.uniswapV2Factory,
   30
 );
