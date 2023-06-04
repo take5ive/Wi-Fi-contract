@@ -106,9 +106,8 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA);
 
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB);
-        console.log("Success!");
+
         liquidity = IUniswapV2Pair(pair).mint(to);
-        console.log("Success!!!!");
     }
 
     function addLiquidityETH(
@@ -400,12 +399,14 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
             amounts[0] <= amountInMax,
             "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
         );
+
         TransferHelper.safeTransferFrom(
             path[0],
             msg.sender,
             UniswapV2Library.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
+
         _swap(amounts, path, to);
     }
 

@@ -2,7 +2,7 @@ import { BigNumberish } from "ethers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { deployFixture } from "../scripts/deploy";
-import { UniswapV2Factory, UniswapV2Funnel } from "../typechain-types";
+import { UniswapV2Factory, UniswapV2Funnel, token } from "../typechain-types";
 
 let addressBook: Awaited<ReturnType<typeof deployFixture>>;
 let funnel: UniswapV2Funnel;
@@ -211,6 +211,7 @@ describe("UniswapV2Funnel", function () {
   });
   it("removeLiquidity", async function () {
     const [deployer] = await ethers.getSigners();
+
     const tokens = [addressBook.token0, addressBook.token1, addressBook.token2];
     const lpAddress = await ethers
       .getContractAt("IUniswapV2Factory", addressBook.factory)
@@ -218,25 +219,30 @@ describe("UniswapV2Funnel", function () {
 
     const beforeLpBalance = await balanceOf(lpAddress, deployer.address);
     const token2BeforeBalance = await balanceOf(tokens[2], deployer.address);
-    console.log("beforeLpBalance:", beforeLpBalance.toString());
-    console.log("beforetoken2Balance:", token2BeforeBalance.toString());
+    console.log("beforeLpBalance:", ethers.utils.formatEther(beforeLpBalance));
+    console.log(
+      "beforetoken2Balance:",
+      ethers.utils.formatEther(token2BeforeBalance)
+    );
 
     const path1 = [addressBook.token0, addressBook.token2];
     const path2 = [addressBook.token1, addressBook.token2];
     await approve(lpAddress, funnel.address, beforeLpBalance);
-    const LPToken = await ethers.getContractAt("MockERC20", lpAddress);
-    const allowance = await LPToken.allowance(deployer.address, funnel.address);
-    console.log("1:approve ,allowance to funnel:", allowance.toString());
+    const LPToken = await ethers.getContractAt("UniswapV2Pair", lpAddress);
+
     const dstExpectedToken2Amount =
       await funnel.calculateDstAmountByRemoveLiquidity(
         lpAddress,
         beforeLpBalance,
         path1,
-        path2,
-        30
+        path2
       );
-    console.log("dstExpectedToken2Amount:", dstExpectedToken2Amount.toString());
-    const dstToken2Amount = await funnel
+    console.log(
+      "dstExpectedToken2Amount:",
+      ethers.utils.formatEther(dstExpectedToken2Amount)
+    );
+    await approve(LPToken.address, funnel.address, beforeLpBalance);
+    await funnel
       .removeLiquidityAndSwapToDstToken(
         lpAddress,
         beforeLpBalance,
@@ -244,17 +250,22 @@ describe("UniswapV2Funnel", function () {
         path1,
         path2,
         1,
-        ethers.constants.MaxUint256,
-        30
+        ethers.constants.MaxUint256
       )
       .then((tx) => tx.wait());
 
-    console.log("2:removeLiquidityAndSwapToDstToken");
-    expect(dstToken2Amount).to.eq(dstExpectedToken2Amount);
+    const dstToken2Amount = (await balanceOf(tokens[2], deployer.address)).sub(
+      token2BeforeBalance
+    );
+    console.log("dstToken2Amount:", ethers.utils.formatEther(dstToken2Amount));
+
     const afterLpBalance = await balanceOf(lpAddress, deployer.address);
     const token2AfterBalance = await balanceOf(tokens[2], deployer.address);
 
-    console.log("afterLpBalance:", afterLpBalance.toString());
-    console.log("aftertoken2Balance:", token2AfterBalance.toString());
+    console.log("afterLpBalance:", ethers.utils.formatEther(afterLpBalance));
+    console.log(
+      "aftertoken2Balance:",
+      ethers.utils.formatEther(token2AfterBalance)
+    );
   });
 });

@@ -7,6 +7,7 @@ import "./uniswap/periphery/libraries/SafeMath.sol";
 import "./uniswap/core/libraries/Math.sol";
 import "./uniswap/periphery/libraries/TransferHelper.sol";
 import "./interfaces/IWETH9.sol";
+import "hardhat/console.sol";
 
 contract UniswapV2Funnel {
     using SafeMath for uint;
@@ -455,8 +456,7 @@ contract UniswapV2Funnel {
         address[] calldata path1,
         address[] calldata path2,
         uint dstTokenMin,
-        uint deadline,
-        uint32 feeBps
+        uint deadline
     ) external returns (uint dstTokenAmount) {
         require(
             path1[path1.length - 1] == path2[path2.length - 1],
@@ -465,6 +465,7 @@ contract UniswapV2Funnel {
 
         address pair = lpAddress;
         address factory = IUniswapV2Pair(lpAddress).factory();
+        uint32 feeBps = feeOf[factory];
         //* 1. remove liquidity
         //* path1[0] : baseToken , path2[0]: farmToken
         IUniswapV2Pair(pair).transferFrom(msg.sender, pair, liquidity);
@@ -534,7 +535,7 @@ contract UniswapV2Funnel {
         uint[] memory amountFromBase = _swapExactTokensForETH(
             factory,
             baseAmount,
-            0,
+            1,
             path1,
             to,
             deadline,
@@ -544,7 +545,7 @@ contract UniswapV2Funnel {
         uint[] memory amountFromFarm = _swapExactTokensForETH(
             factory,
             farmAmount,
-            0,
+            1,
             path2,
             to,
             deadline,
@@ -682,14 +683,14 @@ contract UniswapV2Funnel {
             path,
             feeBps
         );
+
         require(
             amounts[amounts.length - 1] >= amountOutMin,
             "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT"
         );
 
-        TransferHelper.safeTransferFrom(
+        TransferHelper.safeTransfer(
             path[0],
-            msg.sender,
             UniswapV2Library.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
@@ -697,6 +698,7 @@ contract UniswapV2Funnel {
             (address input, address output) = (path[i], path[i + 1]);
             (address token0, ) = UniswapV2Library.sortTokens(input, output);
             uint amountOut = amounts[i + 1];
+            // console.log(amountOut);
             (uint amount0Out, uint amount1Out) = input == token0
                 ? (uint(0), amountOut)
                 : (amountOut, uint(0));
@@ -728,9 +730,8 @@ contract UniswapV2Funnel {
             amounts[amounts.length - 1] >= amountOutMin,
             "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT"
         );
-        TransferHelper.safeTransferFrom(
+        TransferHelper.safeTransfer(
             path[0],
-            msg.sender,
             UniswapV2Library.pairFor(factory, path[0], path[1]),
             amounts[0]
         );
@@ -943,12 +944,11 @@ contract UniswapV2Funnel {
         address lpAddress,
         uint liquidity,
         address[] calldata path1,
-        address[] calldata path2,
-        uint32 feeBps
+        address[] calldata path2
     ) external view returns (uint dstAmount) {
         address factory = IUniswapV2Pair(lpAddress).factory();
         address pair = IUniswapV2Factory(factory).getPair(path1[0], path2[0]);
-
+        uint32 feeBps = feeOf[factory];
         (uint112 balance0, uint112 balance1, ) = IUniswapV2Pair(pair)
             .getReserves();
 
@@ -960,7 +960,8 @@ contract UniswapV2Funnel {
 
         uint baseAmount = liquidity.mul(balanceOfBase) / _totalSupply; // using balances ensures pro-rata distribution
         uint farmAmount = liquidity.mul(balanceOfFarm) / _totalSupply;
-
+        console.log("baseAmount: %s, farmAmount: %s", baseAmount, farmAmount);
+        //..ok
         //* get baseAmounts, farmAmounts
         uint[] memory baseToDstAmounts = UniswapV2Library.getAmountsOut(
             factory,
@@ -968,12 +969,18 @@ contract UniswapV2Funnel {
             path1,
             feeBps
         );
+        for (uint i = 0; i < baseToDstAmounts.length; i++) {
+            console.log("baseToDstAmounts[%s]: %s", i, baseToDstAmounts[i]);
+        }
         uint[] memory farmToDstAmounts = UniswapV2Library.getAmountsOut(
             factory,
             farmAmount,
             path1,
             feeBps
         );
+        for (uint i = 0; i < farmToDstAmounts.length; i++) {
+            console.log("farmToDstAmounts[%s]: %s", i, farmToDstAmounts[i]);
+        }
         dstAmount =
             baseToDstAmounts[baseToDstAmounts.length - 1] +
             farmToDstAmounts[farmToDstAmounts.length - 1];

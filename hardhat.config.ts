@@ -99,6 +99,7 @@ const config: HardhatUserConfig = {
       chainId: 1313161555,
       url: "https://testnet.aurora.dev",
       accounts: [SH_PK2],
+      gasPrice: 100000000000,
     },
   },
 };
