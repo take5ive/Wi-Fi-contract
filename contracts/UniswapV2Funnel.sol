@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./uniswap/periphery/libraries/UniswapV2LibraryV8.sol";
-import "./uniswap/core/interfaces/IUniswapV2ERC20.sol";
-import "./uniswap/periphery/libraries/SafeMath.sol";
-import "./uniswap/core/libraries/Math.sol";
-import "./uniswap/periphery/libraries/TransferHelper.sol";
+import "./uniswapV2/periphery/libraries/UniswapV2LibraryV8.sol";
+import "./uniswapV2/core/interfaces/IUniswapV2ERC20.sol";
+import "./uniswapV2/periphery/libraries/SafeMath.sol";
+import "./uniswapV2/core/libraries/Math.sol";
+import "./uniswapV2/periphery/libraries/TransferHelper.sol";
 import "./interfaces/IWETH9.sol";
 import "hardhat/console.sol";
 
