@@ -975,7 +975,7 @@ contract UniswapV2Funnel {
         uint[] memory farmToDstAmounts = UniswapV2Library.getAmountsOut(
             factory,
             farmAmount,
-            path1,
+            path2,
             feeBps
         );
         for (uint i = 0; i < farmToDstAmounts.length; i++) {

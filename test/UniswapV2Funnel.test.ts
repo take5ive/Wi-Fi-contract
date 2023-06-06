@@ -211,7 +211,6 @@ describe("UniswapV2Funnel", function () {
   });
   it("removeLiquidity", async function () {
     const [deployer] = await ethers.getSigners();
-
     const tokens = [addressBook.token0, addressBook.token1, addressBook.token2];
     const lpAddress = await ethers
       .getContractAt("IUniswapV2Factory", addressBook.factory)
@@ -257,11 +256,9 @@ describe("UniswapV2Funnel", function () {
     const dstToken2Amount = (await balanceOf(tokens[2], deployer.address)).sub(
       token2BeforeBalance
     );
-    console.log("dstToken2Amount:", ethers.utils.formatEther(dstToken2Amount));
-
+    expect(dstToken2Amount).to.eq(dstExpectedToken2Amount);
     const afterLpBalance = await balanceOf(lpAddress, deployer.address);
     const token2AfterBalance = await balanceOf(tokens[2], deployer.address);
-
     console.log("afterLpBalance:", ethers.utils.formatEther(afterLpBalance));
     console.log(
       "aftertoken2Balance:",
