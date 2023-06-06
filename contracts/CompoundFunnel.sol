@@ -5,12 +5,13 @@ import "./uniswapV2/periphery/interfaces/IUniswapV2Router02.sol";
 import "./compound/ICErc20.sol";
 import "./token/IERC20.sol";
 import "./compound/ICEther.sol";
+import "./interfaces/IWETH9.sol";
 
 contract CompoundFunnel {
-    address public _lendingProtocol;
+    IWETH9 weth;
 
-    constructor(address lendingProtocol) {
-        _lendingProtocol = lendingProtocol;
+    constructor(IWETH9 _weth) {
+        weth = _weth;
     }
 
     /*******************************************************
@@ -127,20 +128,115 @@ contract CompoundFunnel {
         ICEther(cEtherToDeposit).transfer(to, receviedCEtherAmount);
     }
 
-    function calculateCTokenInDstAmount(
-        ICErc20 cTokenInDst,
+    function redeemCTokenToErc20Token(
+        ICErc20 cTokenToRedeem,
+        uint redeemAmounts,
+        address to,
+        address[] memory path, //path[0] is tokenInSrc and path[path.length-1] is dstToken
+        IUniswapV2Router02 dexUsingSwap,
+        uint deadline
+    ) external returns (uint dstTokenAmount) {
+        // 1. Redeem cToken to token
+        cTokenToRedeem.transferFrom(msg.sender, address(this), redeemAmounts);
+        cTokenToRedeem.redeem(redeemAmounts);
+        uint receviedUnderlyingTokenAmount = IERC20(cTokenToRedeem.underlying())
+            .balanceOf(address(this));
+        // 2. Swap token to dstToken
+        IUniswapV2Router02(dexUsingSwap).swapExactTokensForTokens(
+            receviedUnderlyingTokenAmount,
+            1,
+            path,
+            address(this),
+            deadline
+        );
+        // 3. Transfer dstToken to "to"
+        dstTokenAmount = IERC20(path[path.length - 1]).balanceOf(address(this));
+        IERC20(path[path.length - 1]).transfer(to, dstTokenAmount);
+    }
+
+    function redeemCTokenToETH(
+        ICErc20 cTokenToRedeem,
+        uint redeemAmounts,
+        address to,
+        address[] memory path,
+        IUniswapV2Router02 dexUsingSwap,
+        uint deadline
+    ) external {
+        //1. Redeem cToken to token
+        cTokenToRedeem.transferFrom(msg.sender, address(this), redeemAmounts);
+        cTokenToRedeem.redeem(redeemAmounts);
+        uint receviedUnderlyingTokenAmount = IERC20(cTokenToRedeem.underlying())
+            .balanceOf(address(this));
+        //2. Swap token to ETH
+        IUniswapV2Router02(dexUsingSwap).swapExactTokensForETH(
+            receviedUnderlyingTokenAmount,
+            1,
+            path,
+            address(this),
+            deadline
+        );
+        //3. Transfer ETH to "to"
+        uint ethAmount = address(this).balance;
+        payable(to).transfer(ethAmount);
+    }
+
+    function redeemCETHToErc20Token(
+        ICEther cEtherToRedeem,
+        uint redeemAmounts,
+        address to,
+        address[] memory path, //path[path.length-1] is dstToken
+        IUniswapV2Router02 dexUsingSwap,
+        uint deadline
+    ) external {
+        //1. Redeem cEther to ether
+        cEtherToRedeem.transferFrom(msg.sender, address(this), redeemAmounts);
+        cEtherToRedeem.redeem(redeemAmounts);
+
+        //2. Swap ether to dstToken
+        IUniswapV2Router02(dexUsingSwap).swapExactETHForTokens{
+            value: address(this).balance
+        }(1, path, address(this), deadline);
+        //3. Transfer ETH to "to"
+        uint ethAmount = address(this).balance;
+        (bool success, ) = payable(to).call{value: ethAmount}("");
+        require(success, "Transfer ETH failed");
+    }
+
+    function redeemCETHToETH(
+        ICEther cEtherToRedeem,
+        uint redeemAmounts,
+        address to
+    ) external {
+        //1. Redeem cEther to ether
+        cEtherToRedeem.redeem(redeemAmounts);
+        //2. Transfer ETH to "to"
+        uint ethAmount = address(this).balance;
+        (bool success, ) = payable(to).call{value: ethAmount}("");
+        require(success, "Transfer ETH failed");
+    }
+
+    /*********************
+     * Calculate Function
+     ***********************/
+    function calculateDestCTokenAmountByDeposit(
+        address cTokenInDst,
         uint tokenAmountInSrc,
         IUniswapV2Router02 dexUsingSwap,
-        address[] memory path
-    ) external view returns (uint cTokenAmountInDst) {
+        address[] memory path // if src chain is ether, path[0] is WETH address
+    ) external returns (uint tokenAmountInDst) {
         //address tokenInSrc = cTokenInDst.underlying();
         //path[path.length - 1] = tokenInSrc;
-        require(
-            path[path.length - 1] == cTokenInDst.underlying(),
-            " path is wrong"
+        (bool success, bytes memory data) = cTokenInDst.call(
+            abi.encodeWithSignature("underlying")
         );
 
-        uint exchangeRate = cTokenInDst.exchangeRateStored();
+        address underlyingToken = abi.decode(data, (address));
+        require(
+            (success && (path[path.length - 1] == underlyingToken)) ||
+                (!success && (path[path.length - 1] == address(weth))),
+            " path is wrong or cTokenInDst is wrong"
+        );
+        uint exchangeRate = ICErc20(cTokenInDst).exchangeRateStored();
 
         // 1. Calculate when swap receivedToken to tokenInSrc
         uint[] memory amounts = IUniswapV2Router02(dexUsingSwap).getAmountsOut(
@@ -148,6 +244,31 @@ contract CompoundFunnel {
             path
         );
         // 2. Calculate when deposit tokenInSrc to lendingProtocol
-        return amounts[amounts.length - 1] * exchangeRate;
+        tokenAmountInDst = amounts[amounts.length - 1] * exchangeRate;
+    }
+
+    function calcualteDestTokenAmountByRedeem(
+        address cTokenInSrc,
+        uint cTokenAmountInSrc,
+        IUniswapV2Router02 dexUsingSwap,
+        address[] memory path // if src chain is ether, path[0] is WETH address
+    ) external returns (uint tokenAmountInDst) {
+        (bool success, bytes memory data) = cTokenInSrc.call(
+            abi.encodeWithSignature("underlying")
+        );
+        address underlyingToken = abi.decode(data, (address));
+        require(
+            (success && (path[path.length - 1] == underlyingToken)) ||
+                (!success && (path[path.length - 1] == address(weth))),
+            " path is wrong or cTokenInDst is wrong"
+        );
+
+        uint exchangeRate = ICErc20(cTokenInSrc).exchangeRateStored();
+        uint[] memory amounts = IUniswapV2Router02(dexUsingSwap).getAmountsOut(
+            cTokenAmountInSrc / exchangeRate,
+            path
+        );
+
+        tokenAmountInDst = amounts[amounts.length - 1];
     }
 }
