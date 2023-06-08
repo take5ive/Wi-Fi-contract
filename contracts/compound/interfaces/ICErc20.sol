@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity ^0.8.0;
-import "../token/IERC20.sol";
+import "../../token/IERC20.sol";
 
 interface ICErc20 is IERC20 {
     function underlying() external view returns (address);

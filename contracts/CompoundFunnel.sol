@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "./uniswapV2/periphery/interfaces/IUniswapV2Router02.sol";
-import "./compound/ICErc20.sol";
+import "./compound/interfaces/ICErc20.sol";
 import "./token/IERC20.sol";
-import "./compound/ICEther.sol";
+import "./compound/interfaces/ICEther.sol";
 import "./interfaces/IWETH9.sol";
 
 contract CompoundFunnel {

@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../interfaces/IERC20.sol";
+import "./IERC20.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -57,7 +57,7 @@ contract ERC20 is IERC20 {
     /**
      * @dev Returns the name of the token.
      */
-    function name() public view virtual override returns (string memory) {
+    function name() public view virtual returns (string memory) {
         return _name;
     }
 
@@ -65,7 +65,7 @@ contract ERC20 is IERC20 {
      * @dev Returns the symbol of the token, usually a shorter version of the
      * name.
      */
-    function symbol() public view virtual override returns (string memory) {
+    function symbol() public view virtual returns (string memory) {
         return _symbol;
     }
 
@@ -82,7 +82,7 @@ contract ERC20 is IERC20 {
      * no way affects any of the arithmetic of the contract, including
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
-    function decimals() public view virtual override returns (uint8) {
+    function decimals() public view virtual returns (uint8) {
         return _decimals;
     }
 
