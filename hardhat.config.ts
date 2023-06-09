@@ -22,13 +22,15 @@ const config: HardhatUserConfig = {
         },
       },
     ],
+
     overrides: {
-      "contracts/uniswap/core": {
+      "contracts/uniswapV2/core": {
         version: "0.5.16",
       },
-      "contracts/uniswap/periphery": {
+      "contracts/uniswapV2/periphery": {
         version: "0.6.6",
       },
+      "contracts/uniswapV3/**": { version: "" },
     },
   },
 
