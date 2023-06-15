@@ -12,7 +12,7 @@ import "hardhat/console.sol";
 contract UniswapV2Funnel {
     using SafeMath for uint;
     address public owner;
-    address public immutable WETH;
+    address public WETH;
     mapping(address => uint32) public feeOf;
 
     modifier ensure(uint deadline) {
@@ -44,7 +44,7 @@ contract UniswapV2Funnel {
         uint112 amount1;
     }
 
-    constructor(address WETH_) {
+    function initialize(address WETH_) external {
         owner = msg.sender;
         WETH = WETH_;
     }

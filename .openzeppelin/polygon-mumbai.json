@@ -1,0 +1,93 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xa6182b9871f6946cBF003997896dFe73Fa426991",
+    "txHash": "0xb201bf27942894e1ab54b2818f70af68a0bea28310ba83254d766b4e68922c29"
+  },
+  "proxies": [
+    {
+      "address": "0x2Bc7DdF1c20e204aD842dE03052CDe8169BA1C05",
+      "txHash": "0x90fc058e8dd1641484f51847df076e62ee057ea19713d9697d440838ec4e0130",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x990478805a65634266938e1F23A9cd145ddc14B9",
+      "txHash": "0xdb57454431b8abecbb1909cbcaa83643cf1e95c76360d8645e23d11870fc5198",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2e878772e49516FD5Ff4A848ec410db71ad1DcE6",
+      "txHash": "0xf217ec4621be3f43eeca1f6605e3ef68019131e3ae7614cb8b8661ce5f8ade71",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x15bb48F04AE662AF87DEb5efbe266593Cba99255",
+      "txHash": "0xe2b79114db9fcc146f1c6ecaa050b93d718500ef4930b823caf02ed7852f08c5",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x501E257F59cb45b8D136fD4904EbCC4fb4575663",
+      "txHash": "0x708f2bf37099edac41fd4b6b0f044bc9fd0a16b8f548ffe689c16637c3458ca3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x7f74837e10e53Af6d9448Fd1ecA5980f2cAe9Fa4",
+      "txHash": "0xaed738f74e9ab2c460397cf385645c10f05a69664720845b650c2d62006518f8",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xA26BEbeEE559E61C898b085a15d5051848919688",
+      "txHash": "0x3bef235c3215c26f1d667118e68a924257ed030e64f62f24dfeeba9f8aa939b2",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "b8b10e7cc46d24700bf3ab19267fb8359ee3e85bd7b87e8aa85dcd201e94fa70": {
+      "address": "0x1c59D78f8D9766C991Fdc7b7D834766d4f7403ea",
+      "txHash": "0xbef8155389681a69820e5fbdeffe2302986ff7a193bcf5c6fadb0934138ada0b",
+      "layout": {
+        "solcVersion": "0.8.18",
+        "storage": [
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "UniswapV2Funnel",
+            "src": "contracts/UniswapV2Funnel.sol:14"
+          },
+          {
+            "label": "WETH",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "UniswapV2Funnel",
+            "src": "contracts/UniswapV2Funnel.sol:15"
+          },
+          {
+            "label": "feeOf",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_uint32)",
+            "contract": "UniswapV2Funnel",
+            "src": "contracts/UniswapV2Funnel.sol:16"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint32)": {
+            "label": "mapping(address => uint32)",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        }
+      }
+    }
+  }
+}

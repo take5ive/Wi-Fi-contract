@@ -1,0 +1,73 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x9869230e8f4E00e8ec337d4A27Ffc448FC8e205e",
+    "txHash": "0xfed7afd7a0462cdfc72337ac2ecbc155179684c95f67a7c34c217bdc6297cf3f"
+  },
+  "proxies": [
+    {
+      "address": "0xE1Aa878c419bCf7B650048C8A0A1e1E8F04Fc635",
+      "txHash": "0x507cbfdc3ab8a462fc5aefadad898a0c7f70d63e066b11b75335752934d2ee11",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x2a0ceA1de40eDD714b1821BB1c8234fB2D318797",
+      "txHash": "0xae3a917d3dd61006b15675b0cc7e7c3b6a8505e718f1e0d9ffe8e1a919452459",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x99Ab614C5Cf30be9976861F9B876E22aE5ADBF08",
+      "txHash": "0xdd8ad02080b8814ed24e0c3335e2a911667a393373f3adaf626092c3d71a7d5c",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "b8b10e7cc46d24700bf3ab19267fb8359ee3e85bd7b87e8aa85dcd201e94fa70": {
+      "address": "0x681457A6A4eE7789d08783ea2F9C5405899b31fC",
+      "txHash": "0x485591e343a5bbce22ceea9b9d53d2b39d1968f3838cf25ea95ad517d93ef3cc",
+      "layout": {
+        "solcVersion": "0.8.18",
+        "storage": [
+          {
+            "label": "owner",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "UniswapV2Funnel",
+            "src": "contracts/UniswapV2Funnel.sol:14"
+          },
+          {
+            "label": "WETH",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "UniswapV2Funnel",
+            "src": "contracts/UniswapV2Funnel.sol:15"
+          },
+          {
+            "label": "feeOf",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_mapping(t_address,t_uint32)",
+            "contract": "UniswapV2Funnel",
+            "src": "contracts/UniswapV2Funnel.sol:16"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_uint32)": {
+            "label": "mapping(address => uint32)",
+            "numberOfBytes": "32"
+          },
+          "t_uint32": {
+            "label": "uint32",
+            "numberOfBytes": "4"
+          }
+        }
+      }
+    }
+  }
+}
